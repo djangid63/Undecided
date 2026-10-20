@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent notifier: 6-week build plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f5f1;
+    --surface: #fbfcfa;
+    --ink: #17231f;
+    --muted: #5b6a63;
+    --line: #cfd9d2;
+    --pine: #1f7a63;
+    --pine-soft: #dcefe8;
+    --gate: #a85d00;
+    --gate-soft: #fbeedb;
+    --island: #17231f;
+    --island-ink: #f2f5f1;
+    --focus: #1f5fd1;
+    --sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    box-sizing: border-box;
+  }
+  :root:not([data-theme="light"]) {}
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1613;
+      --surface: #16201c;
+      --ink: #e8efe9;
+      --muted: #94a59c;
+      --line: #2a3a33;
+      --pine: #4cc3a0;
+      --pine-soft: #1b3a30;
+      --gate: #f0a64a;
+      --gate-soft: #3a2a13;
+      --island: #e8efe9;
+      --island-ink: #0f1613;
+      --focus: #7fa8ff;
+    }
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: 5rem; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem 5rem; }
+
+  /* The island: progress pill, echoing the product itself */
+  .island-bar {
+    position: sticky; top: 0.75rem; z-index: 10;
+    display: flex; justify-content: center;
+    padding-top: 0.75rem; pointer-events: none;
+  }
+  .island {
+    pointer-events: auto;
+    display: flex; align-items: center; gap: 0.9rem;
+    background: var(--island); color: var(--island-ink);
+    border-radius: 999px;
+    padding: 0.55rem 1.1rem 0.55rem 0.7rem;
+    font-size: 0.9rem; font-weight: 500;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    max-width: 100%;
+  }
+  .island .dot {
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    background: var(--pine); flex: none;
+    display: grid; place-items: center;
+    color: #fff; font-size: 0.75rem; font-weight: 800;
+  }
+  .island .track {
+    width: 6rem; height: 0.35rem; border-radius: 99px;
+    background: rgba(127,127,127,0.35); overflow: hidden; flex: none;
+  }
+  .island .fill { height: 100%; width: 0; background: var(--pine); border-radius: 99px; }
+  .island .txt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  header { padding: 2.5rem 0 1rem; }
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.1rem);
+    line-height: 1.05; letter-spacing: -0.03em; font-weight: 800;
+    margin: 0 0 0.75rem;
+  }
+  .lede { color: var(--muted); font-size: 1.1rem; max-width: 36rem; margin: 0; }
+
+  .rules {
+    margin: 2rem 0 0; padding: 1.1rem 1.25rem 1.1rem 1.25rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 0.6rem;
+  }
+  .rules h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+  .rules ul { margin: 0; padding-left: 1.1rem; }
+  .rules li { margin: 0.3rem 0; }
+
+  .start { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; color: var(--muted); font-size: 0.95rem; }
+  input[type="date"] {
+    font: inherit; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 0.4rem; padding: 0.3rem 0.5rem;
+  }
+  button.reset {
+    font: inherit; font-size: 0.9rem; color: var(--muted); background: none;
+    border: 1px solid var(--line); border-radius: 0.4rem; padding: 0.3rem 0.7rem; cursor: pointer;
+  }
+  button.reset:hover { color: var(--ink); border-color: var(--muted); }
+  .status {
+    margin: 1rem 0 0; padding: 0.7rem 0.9rem; border-radius: 0.3rem;
+    background: var(--pine-soft); border-left: 4px solid var(--pine);
+  }
+  .status.behind { background: var(--gate-soft); border-left-color: var(--gate); }
+  .status b { display: block; }
+  .routine { margin: 1rem 0 0; padding: 1.1rem 1.25rem; background: var(--surface); border: 1px solid var(--line); border-radius: 0.6rem; }
+  .routine h2 { font-size: 1rem; margin: 0 0 0.5rem; }
+  .routine table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  .routine td { padding: 0.3rem 0; vertical-align: top; border-top: 1px solid var(--line); }
+  .routine td:first-child { width: 4.5rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .phase { margin: 3rem 0 0; }
+  .phase > h2 { font-size: 1.35rem; margin: 0 0 0.25rem; letter-spacing: -0.01em; }
+  .phase > p { margin: 0 0 1.25rem; color: var(--muted); }
+
+  /* Timeline rail: weeks are a real sequence, so numbering is meaningful */
+  .weeks { list-style: none; margin: 0; padding: 0; position: relative; }
+  .weeks::before {
+    content: ""; position: absolute; left: 1.15rem; top: 0.5rem; bottom: 0.5rem;
+    width: 2px; background: var(--line);
+  }
+  .week { position: relative; padding-left: 3.4rem; margin-bottom: 1.25rem; }
+  .week .num {
+    position: absolute; left: 0; top: 0.35rem;
+    width: 2.3rem; height: 2.3rem; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--line);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 0.95rem; color: var(--muted);
+  }
+  .week.complete .num { background: var(--pine); border-color: var(--pine); color: #fff; }
+  .week.started:not(.complete) .num { border-color: var(--pine); color: var(--pine); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 0.6rem; padding: 1.1rem 1.25rem;
+  }
+  .card h3 { margin: 0; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .dates { font-size: 0.85rem; color: var(--muted); margin: 0.1rem 0 0.6rem; min-height: 1.2em; }
+  .goal { margin: 0 0 0.9rem; }
+
+  .checks { list-style: none; margin: 0; padding: 0; }
+  .checks li { margin: 0; }
+  .checks label {
+    display: flex; gap: 0.65rem; align-items: flex-start;
+    padding: 0.3rem 0; cursor: pointer;
+  }
+  .checks input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 1.15rem; height: 1.15rem; margin: 0.25rem 0 0; flex: none;
+    border: 2px solid var(--muted); border-radius: 0.25rem;
+    background: var(--surface); cursor: pointer; position: relative;
+  }
+  .checks input[type="checkbox"]:checked { background: var(--pine); border-color: var(--pine); }
+  .checks input[type="checkbox"]:checked::after {
+    content: ""; position: absolute; left: 0.28rem; top: 0.05rem;
+    width: 0.3rem; height: 0.6rem;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .checks input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+  input:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--pine-soft); padding: 0.05em 0.35em; border-radius: 0.25rem; }
+
+  .done-when { margin: 0.9rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--line); }
+  .done-when b { font-weight: 700; }
+
+  .gate {
+    margin-top: 0.9rem; padding: 0.7rem 0.9rem;
+    background: var(--gate-soft); border-left: 4px solid var(--gate); border-radius: 0.3rem;
+  }
+  .gate .title { font-weight: 700; color: var(--gate); margin: 0 0 0.15rem; }
+  .gate p { margin: 0 0 0.35rem; }
+  .gate label { display: flex; gap: 0.65rem; align-items: flex-start; cursor: pointer; }
+  .gate input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 1.15rem; height: 1.15rem; margin: 0.25rem 0 0; flex: none;
+    border: 2px solid var(--gate); border-radius: 0.25rem; background: transparent; cursor: pointer; position: relative;
+  }
+  .gate input[type="checkbox"]:checked { background: var(--gate); }
+  .gate input[type="checkbox"]:checked::after {
+    content: ""; position: absolute; left: 0.28rem; top: 0.05rem; width: 0.3rem; height: 0.6rem;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+
+  .notes { margin: 3rem 0 0; }
+  .notes h2 { font-size: 1.2rem; margin: 0 0 0.5rem; }
+  .notes li { margin: 0.35rem 0; }
+
+  @media (max-width: 30rem) {
+    .island .track { width: 3.5rem; }
+    .week { padding-left: 3rem; }
+    .weeks::before { left: 1rem; }
+    .week .num { width: 2rem; height: 2rem; font-size: 0.85rem; }
+  }
+  @media print {
+    .island-bar, .start { display: none; }
+    body { background: #fff; }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="island-bar" role="status" aria-live="polite">
+  <div class="island">
+    <span class="dot" id="dot">0</span>
+    <span class="txt" id="islandText">Setup</span>
+    <span class="track" aria-hidden="true"><span class="fill" id="fill"></span></span>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Agent notifier: 6-week build plan</h1>
+    <p class="lede">Electron shell, Node daemon, Claude Code and Codex adapters, phone approval. Ten milestones in six weeks, each with one runnable deliverable and a security gate before you move on. About 3.5 hours a day, 6 days a week.</p>
+
+    <section class="rules" aria-labelledby="rulesTitle">
+      <h2 id="rulesTitle">Ground rules</h2>
+      <ul>
+        <li>One session ends with one thing that runs. Never stop mid-step.</li>
+        <li>Explain each milestone's code back in your own words and fix the gaps before moving on.</li>
+        <li>A milestone isn't done until its security gate is checked.</li>
+        <li>Commit and push daily, and add one line per session to <code>LOG.md</code>, starting with the date (<code>2026-10-20</code>).</li>
+        <li>When a milestone's gate passes, add a line <code>DONE M&lt;n&gt;</code> to <code>LOG.md</code> (for example <code>DONE M0</code>). The daily schedule check reads it.</li>
+        <li>The 7th day each week is a buffer for catching up or resting. It is never a reason to skip a gate.</li>
+        <li>If you slip more than 2 days, move the start date so the whole plan moves. Never squeeze milestones 6 and 8.</li>
+      </ul>
+    </section>
+
+    <section class="routine" aria-labelledby="routineTitle">
+      <h2 id="routineTitle">Daily session (3.5 h)</h2>
+      <table>
+        <tr><td>15 min</td><td>Read yesterday's <code>LOG.md</code> line; re-run the last check command</td></tr>
+        <tr><td>2.5 h</td><td>Build: type it, run it, fix it</td></tr>
+        <tr><td>30 min</td><td>Explain it back: 3 to 5 lines in your own words</td></tr>
+        <tr><td>15 min</td><td>Commit, push, one line in <code>LOG.md</code></td></tr>
+      </table>
+      <p>Bad day? Do 1.5 hours, not zero.</p>
+    </section>
+
+    <div class="start">
+      <label for="startDate">Plan starts</label>
+      <input type="date" id="startDate">
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+  </header>
+
+  <main id="plan"></main>
+
+  <section class="notes">
+    <h2>Notes</h2>
+    <ul>
+      <li>Milestones 6 and 8 carry the most risk (approval logic, then remote auth). They fall in calendar weeks 4 and 5. Add buffer there rather than rushing.</li>
+      <li>The last two days of week 6 are a final buffer before the plan ends.</li>
+      <li>If you fall behind, cut in this order: your own character and art (move to after release), then phone UI polish. Never cut a security gate or the explain-back step.</li>
+      <li>The milestone 9 threat model is a portfolio piece on its own.</li>
+      <li>Codex support changes quickly. Check the current Codex docs before the milestone 3 spike and the milestone 5 adapter, and confirm whether its permission hook can return a decision or only observe.</li>
+      <li>Coucou is reference only. Before going public, confirm no code or assets from it remain in the repo.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  var KEY = "agent-notifier-plan-v1";
+
+  var phases = [
+    { title: "Setup", blurb: "Calendar week 1. Get the repo and tooling right once.", weeks: [
+      { n: 0, start: 0, days: 2, title: "Project setup",
+        goal: "An empty but runnable monorepo with tests, linting and secret hygiene in place.",
+        tasks: [
+          "Install Node LTS and pin it in <code>.nvmrc</code>; <code>git init</code> and create a <b>private</b> GitHub repo",
+          "Root <code>package.json</code> with npm workspaces: <code>packages/shared</code>, <code>daemon</code>, <code>shell</code>, <code>relay</code>",
+          "Add <code>.gitignore</code> (<code>node_modules</code>, <code>.env</code>, <code>*.db</code>, token files), <code>.env.example</code>, <code>LICENSE</code>",
+          "Add ESLint, Prettier and Vitest; one placeholder test that passes",
+          "Add <code>README.md</code>, <code>SECURITY.md</code>, <code>LOG.md</code> and <code>docs/</code> (threat model starts here)",
+          "Install a pre-commit secret scan (for example gitleaks)",
+          "First commit"
+        ],
+        done: "<code>npm test</code> passes from the repo root and the first commit is pushed.",
+        gate: "No secrets can be committed (ignore rules and scan verified with a fake secret); repo stays private until milestone 9." }
+    ]},
+    { title: "Foundation", blurb: "Calendar weeks 1 and 2. Daemon, event format, storage. No UI yet.", weeks: [
+      { n: 1, start: 2, days: 3, title: "Daemon skeleton",
+        goal: "A Node process that listens only on localhost and rejects anything without a token.",
+        tasks: [
+          "Daemon entry file and config module in <code>packages/daemon</code>",
+          "Node listener bound to <code>127.0.0.1</code>",
+          "Generate a random per-install token on first run",
+          "Compare tokens in constant time (<code>crypto.timingSafeEqual</code>)"
+        ],
+        done: "<code>curl</code> with the token works; without it you get 401.",
+        gate: "Bind address verified from another machine or interface; token never logged." },
+      { n: 2, start: 5, days: 5, title: "Claude Code hook ingestion",
+        goal: "Real Claude Code events arrive in the daemon in one normalized format.",
+        tasks: [
+          "Define the normalized event schema",
+          "Adapter interface with <code>parseEvent()</code> and <code>installHooks()</code>",
+          "Claude Code adapter; installer backs up <code>settings.json</code>, shows a diff, asks consent",
+          "Validate and size-limit every incoming payload"
+        ],
+        done: "A real Claude Code hook event shows in the daemon log.",
+        gate: "Malformed and oversized payloads are rejected; hook script makes no network calls." },
+      { n: 3, start: 10, days: 4, title: "Session store and Codex spike",
+        goal: "History survives restarts, and you know what Codex can and can't do.",
+        tasks: [
+          "SQLite store with <code>better-sqlite3</code>",
+          "History query endpoint",
+          "One-hour Codex spike: a <code>notify</code> script that posts to the daemon",
+          "Read the current Codex hook docs and note what is observe-only"
+        ],
+        done: "Events persist across daemon restarts; a Codex turn-complete event reaches the daemon.",
+        gate: "Parameterized queries only; no raw string-built SQL anywhere." }
+    ]},
+    { title: "Shell and agents", blurb: "Calendar weeks 3 and 4. The visible app, the second agent, and local approvals.", weeks: [
+      { n: 4, start: 14, days: 4, title: "Electron shell",
+        goal: "Tray plus a small React island that shows live events.",
+        tasks: [
+          "Electron tray app, window created lazily",
+          "React island window subscribed to the daemon",
+          "Shell-to-daemon link over a named pipe or Unix socket",
+          "Minimal preload API exposed to the renderer"
+        ],
+        done: "The island shows a live \"agent finished\" event.",
+        gate: "<code>contextIsolation</code> on, <code>nodeIntegration</code> off, no remote content loaded." },
+      { n: 5, start: 18, days: 3, title: "Codex adapter",
+        goal: "Both agents appear in one history, with capabilities shown per agent.",
+        tasks: [
+          "Codex adapter behind the same interface",
+          "Per-agent capability flag: notify-only or can approve",
+          "Chain the user's existing Codex <code>notify</code> instead of overwriting it",
+          "Backup and diff before editing <code>~/.codex/config.toml</code>"
+        ],
+        done: "Claude Code and Codex events sit side by side in history.",
+        gate: "Per-agent input validation; one agent's payload is never trusted as another's." },
+      { n: 6, start: 21, days: 5, title: "Local approval flow",
+        goal: "Approve or deny from the island and the agent actually unblocks.",
+        tasks: [
+          "Approval request with unique ID, expiry and one-time use",
+          "Show the exact command being approved, not a summary",
+          "Replay test: a second approval of the same ID must fail",
+          "Decide fail-open vs fail-closed per agent and write it down"
+        ],
+        done: "A real tool call is approved or denied from the island.",
+        gate: "Replay, expiry and wrong-ID tests pass; default when the daemon is down is documented." }
+    ]},
+    { title: "Remote and release", blurb: "Calendar weeks 4 to 6. Docker, phone approval, polish, threat model.", weeks: [
+      { n: 7, start: 26, days: 4, title: "Dockerize the relay",
+        goal: "The phone relay service runs from a clean <code>docker compose up</code>.",
+        tasks: [
+          "Multi-stage Dockerfile with a pinned Node version",
+          "Run as a non-root user, read-only filesystem where possible",
+          "<code>docker compose</code> with a volume for state",
+          "Secrets passed at runtime through env, never baked into the image"
+        ],
+        done: "Relay starts from a clean checkout with one command.",
+        gate: "<code>docker history</code> shows no secrets; no Docker socket or home directory mounted." },
+      { n: 8, start: 30, days: 5, title: "Phone relay and remote approval",
+        goal: "Approve from your phone, end to end.",
+        tasks: [
+          "Pairing flow between daemon and phone",
+          "TLS on the relay",
+          "Token rotation and revocation",
+          "Rate limiting on pairing and approval endpoints",
+          "Phone approval UI showing the exact command"
+        ],
+        done: "A tool call on your laptop is approved from your phone.",
+        gate: "Unpaired devices can't approve; a stolen token can be revoked; brute force is rate limited." },
+      { n: 9, start: 35, days: 5, title: "Polish and release",
+        goal: "Public repo you are proud of.",
+        tasks: [
+          "Your own character and assets",
+          "README with install steps and screenshots",
+          "Threat model document",
+          "Confirm no Coucou code or assets remain"
+        ],
+        done: "A stranger can clone, build and run it from the README.",
+        gate: "Final pass over every earlier gate; dependency audit clean." }
+    ]}
+  ];
+
+  var allWeeks = [];
+  phases.forEach(function (p) { p.weeks.forEach(function (w) { allWeeks.push(w); }); });
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save(s) {
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  var state = load();
+  state.checks = state.checks || {};
+
+  function weekIds(w) {
+    var ids = [];
+    w.tasks.forEach(function (_, i) { ids.push("w" + w.n + "t" + i); });
+    ids.push("w" + w.n + "explain");
+    ids.push("w" + w.n + "gate");
+    return ids;
+  }
+
+  var DEFAULT_START = "2026-10-20";
+  var DAY = 24 * 60 * 60 * 1000;
+
+  function fmt(d) {
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  function planStart() {
+    var s = new Date((state.start || DEFAULT_START) + "T00:00:00");
+    return isNaN(s) ? new Date(DEFAULT_START + "T00:00:00") : s;
+  }
+  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+  function startOf(w) { return addDays(planStart(), w.start); }
+  function endOf(w) { return addDays(planStart(), w.start + w.days - 1); }
+  function dateRange(w) {
+    var a = startOf(w), b = endOf(w);
+    return w.days === 1 ? fmt(a) : fmt(a) + " to " + fmt(b);
+  }
+  function today() {
+    var t = new Date(); t.setHours(0, 0, 0, 0); return t;
+  }
+  function byNumber(n) {
+    for (var i = 0; i < allWeeks.length; i++) if (allWeeks[i].n === n) return allWeeks[i];
+    return null;
+  }
+
+  function updateStatus(current) {
+    var el = document.getElementById("status");
+    var t = today();
+    var first = allWeeks[0], last = allWeeks[allWeeks.length - 1];
+    var behind = false, msg;
+    if (current === null) {
+      msg = "<b>All milestones done.</b> Do the final gate pass again before you make the repo public.";
+    } else if (t < startOf(first)) {
+      msg = "<b>Starts " + fmt(startOf(first)) + ".</b> Milestone 0 is first.";
+    } else {
+      var w = byNumber(current);
+      var expected = last;
+      for (var i = 0; i < allWeeks.length; i++) {
+        if (t <= endOf(allWeeks[i])) { expected = allWeeks[i]; break; }
+      }
+      var late = Math.round((t - endOf(w)) / DAY);
+      if (late > 0) {
+        behind = true;
+        msg = "<b>Behind by " + late + " day" + (late === 1 ? "" : "s") + ".</b> " +
+          "Milestone " + w.n + " (" + w.title + ") should have been done on " + fmt(endOf(w)) +
+          ". The schedule says you should be on milestone " + expected.n + " (" + expected.title + ") now. " +
+          (late > 2
+            ? "That is more than 2 days. Move the start date, or use every buffer day until you catch up. Do not skip the gate or the explain-back step."
+            : "Use this week's buffer day to catch up. Do not skip the gate or the explain-back step.");
+      } else {
+        msg = "<b>On track.</b> Milestone " + w.n + " (" + w.title + ") is due " + fmt(endOf(w)) + ".";
+      }
+    }
+    el.innerHTML = msg;
+    el.classList.toggle("behind", behind);
+  }
+
+  function render() {
+    var html = "";
+    phases.forEach(function (p) {
+      html += '<section class="phase"><h2>' + p.title + '</h2><p>' + p.blurb + '</p><ol class="weeks">';
+      p.weeks.forEach(function (w) {
+        html += '<li class="week" id="week' + w.n + '"><span class="num" aria-hidden="true">' + w.n + '</span><div class="card">';
+        html += '<h3>' + (w.n === 0 ? '' : 'Milestone ' + w.n + ': ') + w.title + '</h3>';
+        html += '<p class="dates" id="dates' + w.n + '">' + dateRange(w) + '</p>';
+        html += '<p class="goal">' + w.goal + '</p><ul class="checks">';
+        w.tasks.forEach(function (t, i) {
+          var id = "w" + w.n + "t" + i;
+          html += '<li><label><input type="checkbox" data-id="' + id + '"><span>' + t + '</span></label></li>';
+        });
+        html += '<li><label><input type="checkbox" data-id="w' + w.n + 'explain"><span>Explained the code back and fixed the gaps</span></label></li>';
+        html += '</ul><p class="done-when"><b>Done when:</b> ' + w.done + '</p>';
+        html += '<div class="gate"><p class="title">Security gate</p><p>' + w.gate + '</p>';
+        html += '<label><input type="checkbox" data-id="w' + w.n + 'gate"><span>Gate passed</span></label></div>';
+        html += '</div></li>';
+      });
+      html += '</ol></section>';
+    });
+    document.getElementById("plan").innerHTML = html;
+
+    document.querySelectorAll("input[data-id]").forEach(function (cb) {
+      cb.checked = !!state.checks[cb.getAttribute("data-id")];
+      cb.addEventListener("change", function () {
+        state.checks[cb.getAttribute("data-id")] = cb.checked;
+        save(state);
+        update();
+      });
+    });
+    update();
+  }
+
+  function update() {
+    var total = 0, done = 0, current = null, completeCount = 0;
+    allWeeks.forEach(function (w) {
+      var ids = weekIds(w), d = 0;
+      ids.forEach(function (id) { if (state.checks[id]) d++; });
+      total += ids.length; done += d;
+      var el = document.getElementById("week" + w.n);
+      var complete = d === ids.length;
+      el.classList.toggle("complete", complete);
+      el.classList.toggle("started", d > 0);
+      if (complete) completeCount++;
+      if (!complete && current === null) current = w.n;
+    });
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    var dot = document.getElementById("dot"), txt = document.getElementById("islandText");
+    if (current === null) {
+      dot.textContent = "\u2713";
+      txt.textContent = "All milestones complete";
+    } else {
+      dot.textContent = current;
+      txt.textContent = (current === 0 ? "Setup" : "Milestone " + current + " of 9") + ", " + pct + "%";
+    }
+    updateStatus(current);
+  }
+
+  var dateInput = document.getElementById("startDate");
+  dateInput.value = state.start || DEFAULT_START;
+  dateInput.addEventListener("change", function () {
+    state.start = dateInput.value;
+    save(state);
+    allWeeks.forEach(function (w) {
+      document.getElementById("dates" + w.n).textContent = dateRange(w);
+    });
+    update();
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    if (!confirm("Clear all checkmarks and the start date?")) return;
+    state = { checks: {} };
+    save(state);
+    dateInput.value = DEFAULT_START;
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

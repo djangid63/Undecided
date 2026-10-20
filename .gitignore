@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+*.tsbuildinfo
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.token
+
+# Local data (SQLite, milestone 3)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

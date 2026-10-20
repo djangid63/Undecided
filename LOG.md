@@ -1,0 +1,1 @@
+2026-10-20: npm workspaces (shared, daemon, shell, relay), .gitignore, .env.example, MIT license. Learned: UTF-8 vs UTF-16, ESM, workspace junctions.

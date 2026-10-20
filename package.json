@@ -1,0 +1,23 @@
+{
+  "name": "undecided",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Desktop notifier and approval app for AI coding agents (Claude Code, Codex)",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djangid63/Undecided.git"
+  },
+  "bugs": {
+    "url": "https://github.com/djangid63/Undecided/issues"
+  },
+  "homepage": "https://github.com/djangid63/Undecided#readme"
+}
