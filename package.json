@@ -8,9 +8,12 @@
   "engines": {
     "node": ">=24"
   },
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -b",
+    "dev": "tsc -b --watch"
   },
   "repository": {
     "type": "git",
@@ -19,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/djangid63/Undecided/issues"
   },
-  "homepage": "https://github.com/djangid63/Undecided#readme"
+  "homepage": "https://github.com/djangid63/Undecided#readme",
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
+  }
 }
